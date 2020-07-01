@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>WebCam Fun</title>
+    <script src="js/bling.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <video id="video" style="display: none"></video>
+      <canvas id="canvas" style="display: none"></canvas>
+      <img id="photo" />
+    </div>
+    <script src="js/main.js"></script>
+    <script type="module">
+     import init, { transform } from './wasm/process_canvas.js';
+
+     async function run() {
+       await init();
+
+       WebCam.run(transform);
+     }
+
+     run();
+
+    </script>
+  </body>
+</html>
