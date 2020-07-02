@@ -4,14 +4,14 @@ pub type PixelColor = (u8, u8, u8, u8);
 
 #[derive(Debug, Eq, Copy, Clone)]
 pub struct Pixel {
-    pub index: u32,
+    pub index: usize,
     pub color: PixelColor,
 }
 
 impl Pixel {
     pub fn new(index: usize, image_data: &Clamped<Vec<u8>>) -> Pixel {
         Pixel {
-            index: index as u32,
+            index,
             color: (
                 image_data[index + 0],
                 image_data[index + 1],

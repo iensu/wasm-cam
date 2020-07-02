@@ -1,7 +1,7 @@
 use crate::pixel::{Pixel, PixelColor, PixelSquare};
 
 fn get_pixel_color_strength((r, g, b, _): &PixelColor) -> u32 {
-    *r as u32 + *g as u32 + *b as u32
+    u32::from(*r) + u32::from(*g) + u32::from(*b)
 }
 
 pub fn identity(pixel_square: PixelSquare) -> PixelSquare {
@@ -36,10 +36,10 @@ pub fn color_average(pixel_square: PixelSquare) -> PixelSquare {
              color: (r, g, b, a),
          }| {
             (
-                r_sum + *r as u32,
-                g_sum + *g as u32,
-                b_sum + *b as u32,
-                a_sum + *a as u32,
+                r_sum + u32::from(*r),
+                g_sum + u32::from(*g),
+                b_sum + u32::from(*b),
+                a_sum + u32::from(*a),
             )
         },
     );
@@ -66,14 +66,12 @@ mod tests {
     #[test]
     fn identity_works() {
         let orig_pixel_square = (0..4)
-            .map(|index| Pixel {
-                index,
-                color: (
-                    10 * index as u8,
-                    20 * index as u8,
-                    30 * index as u8,
-                    40 * index as u8,
-                ),
+            .map(|index| {
+                let i = index as u8;
+                Pixel {
+                    index,
+                    color: (10 * i, 20 * i, 30 * i, 40 * i),
+                }
             })
             .collect::<PixelSquare>();
         let expected = orig_pixel_square.clone();
@@ -84,14 +82,12 @@ mod tests {
     #[test]
     fn color_average_works() {
         let orig_pixel_square = (0..4)
-            .map(|index| Pixel {
-                index,
-                color: (
-                    10 * index as u8,
-                    20 * index as u8,
-                    30 * index as u8,
-                    40 * index as u8,
-                ),
+            .map(|index| {
+                let i = index as u8;
+                Pixel {
+                    index,
+                    color: (10 * i, 20 * i, 30 * i, 40 * i),
+                }
             })
             .collect::<PixelSquare>();
         let averaged_color: PixelColor = (15, 30, 45, 60);
@@ -108,14 +104,12 @@ mod tests {
     #[test]
     fn average_works() {
         let orig_pixel_square = (0..4)
-            .map(|index| Pixel {
-                index,
-                color: (
-                    10 * index as u8,
-                    20 * index as u8,
-                    30 * index as u8,
-                    40 * index as u8,
-                ),
+            .map(|index| {
+                let i = index as u8;
+                Pixel {
+                    index,
+                    color: (10 * i, 20 * i, 30 * i, 40 * i),
+                }
             })
             .collect::<PixelSquare>();
         let average_strength: PixelColor = (30, 30, 30, 255);
