@@ -23,15 +23,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "js-sys"
-version = "0.3.41"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4b9172132a62451e56142bff9afc91c8e4a4500aa5b847da36815b63bfda916"
-dependencies = [
- "wasm-bindgen",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -61,7 +52,6 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]
@@ -143,13 +133,3 @@ name = "wasm-bindgen-shared"
 version = "0.2.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f7b90ea6c632dd06fd765d44542e234d5e63d9bb917ecd64d79778a13bd79ae"
-
-[[package]]
-name = "web-sys"
-version = "0.3.41"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "863539788676619aac1a23e2df3655e96b32b0e05eb72ca34ba045ad573c625d"
-dependencies = [
- "js-sys",
- "wasm-bindgen",
-]

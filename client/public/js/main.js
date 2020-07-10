@@ -5,20 +5,19 @@ window.WebCam = {
 };
 
 function run(modifyFn) {
-  var width = 640;
-  var height = 0;
-  var intervalHandle = null;
-  var streaming = false;
+  let width = 640;
+  let height = 0;
+  let intervalHandle = null;
+  let streaming = false;
 
-  var video = null;
-  var canvas = null;
-  var photo = null;
-  var startbutton = null;
+  let video = null;
+  let sourceCanvas = null;
+  let targetCanvas = null;
 
   function startup() {
     video = $("#video");
-    canvas = $("#canvas");
-    photo = $("#photo");
+    sourceCanvas = $("#source-canvas");
+    targetCanvas = $("#target-canvas");
 
     navigator.mediaDevices
       .getUserMedia({
@@ -37,13 +36,14 @@ function run(modifyFn) {
       "canplay",
       () => {
         if (!streaming) {
-          console.log("Video width", video.videoWidth);
           height = video.videoHeight / (video.videoWidth / width);
 
           video.setAttribute("width", width);
           video.setAttribute("height", height);
-          canvas.setAttribute("width", width);
-          canvas.setAttribute("height", height);
+          sourceCanvas.setAttribute("width", width);
+          sourceCanvas.setAttribute("width", width);
+          targetCanvas.setAttribute("width", width);
+          targetCanvas.setAttribute("height", height);
 
           streaming = true;
         }
@@ -51,49 +51,48 @@ function run(modifyFn) {
       false
     );
 
-    clearPhoto();
+    clearFrame();
   }
 
-  function clearPhoto() {
-    var context = canvas.getContext("2d");
-    context.fillStyle = "#AAA";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    var data = canvas.toDataURL("image/png");
-    photo.setAttribute("src", data);
+  function clearFrame() {
+    var context = targetCanvas.getContext("2d");
+    context.fillStyle = "#000";
+    context.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
   }
 
-  function takePicture() {
-    var context = canvas.getContext("2d");
+  function takeFrame() {
+    var context = sourceCanvas.getContext("2d");
 
     if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
+      sourceCanvas.width = width;
+      sourceCanvas.height = height;
       context.drawImage(video, 0, 0, width, height);
 
       var imageData = context.getImageData(0, 0, width, height);
       var updatedImageData = context.createImageData(width, height);
 
-      var updatedData = modifyFn(imageData, 16, "greyscale");
+      var updatedData = modifyFn(
+        imageData.data,
+        imageData.width,
+        imageData.height,
+        8,
+        "greyscale"
+      );
 
       updatedData.forEach((val, idx) => {
         updatedImageData.data[idx] = val;
       });
 
-      context.putImageData(updatedImageData, 0, 0);
-
-      var data = canvas.toDataURL("image/png");
-
-      photo.setAttribute("src", data);
+      targetCanvas.getContext("2d").putImageData(updatedImageData, 0, 0);
     } else {
-      clearPhoto();
+      clearFrame();
     }
   }
 
-  $("#photo").on("click", () => {
+  $("#target-canvas").on("click", () => {
     if (!intervalHandle) {
-      takePicture();
-      intervalHandle = setInterval(takePicture, 1000 / 120);
+      takeFrame();
+      intervalHandle = setInterval(takeFrame, 1000 / 120);
     } else {
       clearInterval(intervalHandle);
       intervalHandle = null;

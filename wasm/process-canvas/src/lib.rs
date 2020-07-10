@@ -5,7 +5,6 @@ mod transforms;
 
 use std::panic;
 use wasm_bindgen::prelude::*;
-use web_sys::ImageData;
 
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
@@ -41,13 +40,12 @@ fn calculate_pixel_indices(square_index: u32, square_size: u32, canvas_width: u3
 }
 
 fn apply_transform(
-    input: ImageData,
+    input_data: Vec<u8>,
+    width: u32,
+    height: u32,
     square_size: u32,
     transform: fn(pixel::PixelSquare) -> pixel::PixelSquare,
 ) -> Vec<u8> {
-    let width = input.width();
-    let height = input.height();
-    let input_data = input.data();
     let num_squares = (width * height) / square_size.pow(2);
 
     let mut output: Vec<u8> = vec![0; input_data.len()];
@@ -76,7 +74,13 @@ fn apply_transform(
 }
 
 #[wasm_bindgen]
-pub fn transform(input: ImageData, square_size: u32, transform: &str) -> Vec<u8> {
+pub fn transform(
+    input: Vec<u8>,
+    width: u32,
+    height: u32,
+    square_size: u32,
+    transform: &str,
+) -> Vec<u8> {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     let transform_fn = match transform {
@@ -85,7 +89,7 @@ pub fn transform(input: ImageData, square_size: u32, transform: &str) -> Vec<u8>
         _ => transforms::identity,
     };
 
-    apply_transform(input, square_size, transform_fn)
+    apply_transform(input, width, height, square_size, transform_fn)
 }
 
 #[cfg(test)]

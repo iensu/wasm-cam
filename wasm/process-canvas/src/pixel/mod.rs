@@ -1,5 +1,3 @@
-use wasm_bindgen::Clamped;
-
 pub type PixelColor = (u8, u8, u8, u8);
 
 #[derive(Debug, Eq, Copy, Clone)]
@@ -9,7 +7,7 @@ pub struct Pixel {
 }
 
 impl Pixel {
-    pub fn new(index: usize, image_data: &Clamped<Vec<u8>>) -> Pixel {
+    pub fn new(index: usize, image_data: &Vec<u8>) -> Pixel {
         Pixel {
             index,
             color: (
