@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const PORT = process.env.PORT || 8080;
+const STATIC_FOLDER_PATH = process.env.STATIC_FOLDER_PATH || "../client/public";
 
 function getContentType(path) {
   const extension = /^.+\.([a-zA-Z]+)$/.exec(path)[1] || "unknown";
@@ -25,7 +26,7 @@ http
     const requestedUrl = req.url == "/" ? "/index.html" : req.url;
 
     fs.readFile(
-      path.join(__dirname, "../client/public", requestedUrl),
+      path.join(__dirname, STATIC_FOLDER_PATH, requestedUrl),
       (err, data) => {
         if (err) {
           res.writeHead(404);

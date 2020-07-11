@@ -1,9 +1,6 @@
-extern crate console_error_panic_hook;
-
 mod pixel;
 mod transforms;
 
-use std::panic;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
@@ -81,8 +78,6 @@ pub fn transform(
     square_size: u32,
     transform: &str,
 ) -> Vec<u8> {
-    panic::set_hook(Box::new(console_error_panic_hook::hook));
-
     let transform_fn = match transform {
         "pixelate" => transforms::color_average,
         "greyscale" => transforms::average,
