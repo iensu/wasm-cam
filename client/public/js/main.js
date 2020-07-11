@@ -4,7 +4,7 @@ window.WebCam = {
   run
 };
 
-function run(modifyFn) {
+function run(modifyFn, transformType) {
   let width = 640;
   let height = 0;
   let intervalHandle = null;
@@ -76,7 +76,7 @@ function run(modifyFn) {
         imageData.width,
         imageData.height,
         8,
-        "greyscale"
+        transformType
       );
 
       updatedData.forEach((val, idx) => {

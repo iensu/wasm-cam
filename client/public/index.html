@@ -13,12 +13,12 @@
     </div>
     <script src="js/main.js"></script>
     <script type="module">
-     import init, { transform } from './wasm/process_canvas.js';
+     import init, { transform, Transform } from './wasm/process_canvas.js';
 
      async function run() {
        await init();
 
-       WebCam.run(transform);
+       WebCam.run(transform, Transform.Pixelate);
      }
 
      run();

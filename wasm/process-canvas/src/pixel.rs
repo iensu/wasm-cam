@@ -18,6 +18,11 @@ impl Pixel {
             ),
         }
     }
+
+    pub fn color_strength(&self) -> u32 {
+        let (r, g, b, _) = self.color;
+        u32::from(r) + u32::from(g) + u32::from(b)
+    }
 }
 
 impl PartialEq for Pixel {
