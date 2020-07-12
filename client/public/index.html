@@ -3,26 +3,20 @@
   <head>
     <meta charset="UTF-8"/>
     <title>WebCam Fun</title>
-    <script src="js/bling.js"></script>
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <div id="app">
-      <video id="video" style="display: none"></video>
-      <canvas id="source-canvas" style="display: none"></canvas>
-      <canvas id="target-canvas"></canvas>
     </div>
-    <script src="js/main.js"></script>
     <script type="module">
-     import init, { transform, Transform } from './wasm/process_canvas.js';
+     import { WebCam } from './js/web-cam.js';
+     import initializeWasmModule from './wasm/process_canvas.js';
 
-     async function run() {
-       await init();
-
-       WebCam.run(transform, Transform.Pixelate);
-     }
-
-     run();
-
+     initializeWasmModule()
+       .then(() => {
+         window.webCam = new WebCam(document.getElementById("app"));
+         window.webCam.start();
+       });
     </script>
   </body>
 </html>

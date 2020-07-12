@@ -1,5 +1,9 @@
 use crate::pixel::{Pixel, PixelSquare};
 
+pub fn identity(pixel_square: PixelSquare) -> PixelSquare {
+    pixel_square.clone()
+}
+
 pub fn average(pixel_square: PixelSquare) -> PixelSquare {
     let num_pixels = pixel_square.len() as u32;
     let total_pixel_strength = pixel_square

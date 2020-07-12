@@ -16,6 +16,8 @@ function getContentType(path) {
       return "application/wasm";
     case "js":
       return "application/javascript";
+    case "css":
+      return "text/css";
     default:
       return "text/plain";
   }
