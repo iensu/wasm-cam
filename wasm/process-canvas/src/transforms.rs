@@ -1,4 +1,4 @@
-use crate::pixel::{Pixel, PixelSquare};
+use crate::pixel::{Pixel, PixelSquare, RgbaColor};
 
 pub fn identity(pixel_square: PixelSquare) -> PixelSquare {
     pixel_square.clone()
@@ -15,7 +15,7 @@ pub fn average(pixel_square: PixelSquare) -> PixelSquare {
         .iter()
         .map(|p| Pixel {
             index: p.index,
-            color: (average, average, average, 255),
+            color: RgbaColor(average, average, average, 255),
         })
         .collect::<PixelSquare>()
 }
@@ -27,7 +27,7 @@ pub fn color_average(pixel_square: PixelSquare) -> PixelSquare {
         |(r_sum, g_sum, b_sum, a_sum),
          Pixel {
              index: _,
-             color: (r, g, b, a),
+             color: RgbaColor(r, g, b, a),
          }| {
             (
                 r_sum + u32::from(*r),
@@ -37,7 +37,7 @@ pub fn color_average(pixel_square: PixelSquare) -> PixelSquare {
             )
         },
     );
-    let normalized = (
+    let normalized = RgbaColor(
         (r_total / num_pixels) as u8,
         (g_total / num_pixels) as u8,
         (b_total / num_pixels) as u8,
@@ -73,7 +73,7 @@ pub fn apply_transform(
 
         for Pixel {
             index,
-            color: (r, g, b, a),
+            color: RgbaColor(r, g, b, a),
         } in transform(pixel_square)
         {
             let i = index as usize;
@@ -118,7 +118,7 @@ fn calculate_pixel_indices(square_index: u32, square_size: u32, canvas_width: u3
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::pixel::PixelColor;
+    use crate::pixel::RgbaColor;
 
     #[test]
     fn calculate_pixel_indices_works() {
@@ -136,7 +136,7 @@ mod tests {
                 let i = index as u8;
                 Pixel {
                     index,
-                    color: (10 * i, 20 * i, 30 * i, 40 * i),
+                    color: RgbaColor(10 * i, 20 * i, 30 * i, 40 * i),
                 }
             })
             .collect::<PixelSquare>();
@@ -152,11 +152,11 @@ mod tests {
                 let i = index as u8;
                 Pixel {
                     index,
-                    color: (10 * i, 20 * i, 30 * i, 40 * i),
+                    color: RgbaColor(10 * i, 20 * i, 30 * i, 40 * i),
                 }
             })
             .collect::<PixelSquare>();
-        let averaged_color: PixelColor = (15, 30, 45, 60);
+        let averaged_color = RgbaColor(15, 30, 45, 60);
         let expected = (0..4)
             .map(|index| Pixel {
                 index,
@@ -174,11 +174,11 @@ mod tests {
                 let i = index as u8;
                 Pixel {
                     index,
-                    color: (10 * i, 20 * i, 30 * i, 40 * i),
+                    color: RgbaColor(10 * i, 20 * i, 30 * i, 40 * i),
                 }
             })
             .collect::<PixelSquare>();
-        let average_strength: PixelColor = (30, 30, 30, 255);
+        let average_strength = RgbaColor(30, 30, 30, 255);
         let expected = (0..4)
             .map(|index| Pixel {
                 index,
