@@ -1,3 +1,5 @@
+use wasm_bindgen::Clamped;
+
 use crate::pixel::{Pixel, PixelSquare, RgbaColor};
 
 pub fn identity(pixel_square: PixelSquare) -> PixelSquare {
@@ -54,21 +56,20 @@ pub fn color_average(pixel_square: PixelSquare) -> PixelSquare {
 }
 
 pub fn apply_transform(
-    input_data: Vec<u8>,
+    input_data: &Clamped<Vec<u8>>,
     width: u32,
     height: u32,
     square_size: u32,
     transform: fn(PixelSquare) -> PixelSquare,
 ) -> Vec<u8> {
     let num_squares = (width * height) / square_size.pow(2);
-
-    let mut output: Vec<u8> = vec![0; input_data.len()];
+    let mut output = vec![0; input_data.len()];
 
     for sq in 0..num_squares {
         let pixel_indices = calculate_pixel_indices(sq, square_size, width);
         let pixel_square = pixel_indices
             .iter()
-            .map(|idx: &u32| Pixel::new(*idx as usize, &input_data))
+            .map(|idx: &u32| Pixel::new(*idx as usize, input_data))
             .collect::<PixelSquare>();
 
         for Pixel {

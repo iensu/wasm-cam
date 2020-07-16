@@ -118,27 +118,17 @@ export class WebCam {
     sourceCanvas.width = this.videoWidth;
     sourceCanvas.height = this.videoHeight;
 
-    const ctx = sourceCanvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, this.videoWidth, this.videoHeight);
+    const sourceCtx = sourceCanvas.getContext("2d");
+    sourceCtx.drawImage(video, 0, 0, this.videoWidth, this.videoHeight);
+    const targetCtx = targetCanvas.getContext("2d");
 
-    const imageData = ctx.getImageData(0, 0, this.videoWidth, this.videoHeight);
-    const updatedImageData = ctx.createImageData(
+    processCanvas.transform(
+      sourceCtx,
+      targetCtx,
       this.videoWidth,
-      this.videoHeight
-    );
-
-    const updatedData = processCanvas.transform(
-      imageData.data,
-      imageData.width,
-      imageData.height,
+      this.videoHeight,
       this.squareSize,
       this.transformation
     );
-
-    updatedData.forEach((val, idx) => {
-      updatedImageData.data[idx] = val;
-    });
-
-    targetCanvas.getContext("2d").putImageData(updatedImageData, 0, 0);
   }
 }
