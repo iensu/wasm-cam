@@ -1,6 +1,8 @@
 import * as processCanvas from "../wasm/process_canvas.js";
 import * as util from "./util.js";
 
+const SQUARE_SIZES = [4, 8, 16, 32];
+
 export class WebCam {
   videoWidth = 640;
   videoHeight = 0;
@@ -12,7 +14,7 @@ export class WebCam {
 
   intervalHandle = null;
 
-  squareSize = 16;
+  squareSize = SQUARE_SIZES[2];
   transformation = processCanvas.Transformation.Pixelate;
 
   constructor(appDiv) {
@@ -64,6 +66,15 @@ export class WebCam {
       default:
         this.transformation = processCanvas.Transformation.Unknown;
     }
+  }
+
+  setSquareSize(size) {
+    if (!SQUARE_SIZES.includes(size)) {
+      console.warn(`Must be one of ${SQUARE_SIZES.join()}`);
+      return;
+    }
+
+    this.squareSize = size;
   }
 
   async _initializeVideoStream(video, sourceCanvas, targetCanvas) {
@@ -118,27 +129,17 @@ export class WebCam {
     sourceCanvas.width = this.videoWidth;
     sourceCanvas.height = this.videoHeight;
 
-    const ctx = sourceCanvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, this.videoWidth, this.videoHeight);
+    const sourceCtx = sourceCanvas.getContext("2d");
+    sourceCtx.drawImage(video, 0, 0, this.videoWidth, this.videoHeight);
+    const targetCtx = targetCanvas.getContext("2d");
 
-    const imageData = ctx.getImageData(0, 0, this.videoWidth, this.videoHeight);
-    const updatedImageData = ctx.createImageData(
+    processCanvas.transform(
+      sourceCtx,
+      targetCtx,
       this.videoWidth,
-      this.videoHeight
-    );
-
-    const updatedData = processCanvas.transform(
-      imageData.data,
-      imageData.width,
-      imageData.height,
+      this.videoHeight,
       this.squareSize,
       this.transformation
     );
-
-    updatedData.forEach((val, idx) => {
-      updatedImageData.data[idx] = val;
-    });
-
-    targetCanvas.getContext("2d").putImageData(updatedImageData, 0, 0);
   }
 }
