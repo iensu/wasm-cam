@@ -1,3 +1,12 @@
+html {
+  background: #000;
+}
+
+#app {
+  margin: 64px auto;
+  width: 640px;
+}
+
 .hidden {
   display: none;
 }
