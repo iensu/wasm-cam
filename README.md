@@ -2,7 +2,7 @@
 
 Playing around with the web-cam using WASM.
 
-This version uses `web-sys` to access DOM elements directly in the Rust code.
+In this version the WASM code only receives and returns an array of bytes and does not access any DOM elements directly.
 
 ## Run the app
 
