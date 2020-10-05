@@ -1,6 +1,8 @@
 import * as processCanvas from "../wasm/process_canvas.js";
 import * as util from "./util.js";
 
+const SQUARE_SIZES = [4, 8, 16, 32];
+
 export class WebCam {
   videoWidth = 640;
   videoHeight = 0;
@@ -12,7 +14,7 @@ export class WebCam {
 
   intervalHandle = null;
 
-  squareSize = 16;
+  squareSize = SQUARE_SIZES[2];
   transformation = processCanvas.Transformation.Pixelate;
 
   constructor(appDiv) {
@@ -64,6 +66,15 @@ export class WebCam {
       default:
         this.transformation = processCanvas.Transformation.Unknown;
     }
+  }
+
+  setSquareSize(size) {
+    if (!SQUARE_SIZES.includes(size)) {
+      console.warn(`Must be one of ${SQUARE_SIZES.join()}`);
+      return;
+    }
+
+    this.squareSize = size;
   }
 
   async _initializeVideoStream(video, sourceCanvas, targetCanvas) {
