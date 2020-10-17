@@ -1,38 +1,6 @@
 "use strict";
 
-function createNode(nodeType, attributes = {}, children = []) {
-  const node = document.createElement(nodeType);
-
-  Object.entries(attributes).forEach(([attr, val]) => {
-    node[attr] = val;
-  });
-
-  children.forEach(child => {
-    node.appendChild(child);
-  });
-
-  return node;
-}
-
-const div = createNode.bind(null, "div");
-const p = createNode.bind(null, "p");
-const button = createNode.bind(null, "button");
-const video = createNode.bind(null, "video");
-
-async function getVideoTrack(constraints, elem) {
-  const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-  elem.srcObject = stream;
-
-  elem.onloadedmetadata = function() {
-    elem.play();
-  };
-
-  return stream.getVideoTracks()[0];
-}
-
 function modifySquares(squareWidth, fn, imageData, updatedData) {
-  const pixelWidth = 4;
   const { width, height } = imageData;
 
   const numSquares = (width * height) / squareWidth ** 2;
@@ -62,74 +30,65 @@ function modifySquares(squareWidth, fn, imageData, updatedData) {
   return updatedData;
 }
 
-(function() {
-  var width = 640; // We will scale the photo width to this
-  var height = 0; // This will be computed based on the input stream
+function range(start, end, step = 1) {
+  const result = [];
 
-  var streaming = false;
-
-  var video = null;
-  var canvas = null;
-  var photo = null;
-  var startbutton = null;
-
-  function startup() {
-    video = $("#video");
-    canvas = $("#canvas");
-    photo = $("#photo");
-
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: false })
-      .then(stream => {
-        video.srcObject = stream;
-        video.play();
-      })
-      .catch(err => {
-        console.error("Error occurred", err);
-      });
-
-    video.addEventListener(
-      "canplay",
-      () => {
-        if (!streaming) {
-          height = video.videoHeight / (video.videoWidth / width);
-
-          video.setAttribute("width", width);
-          video.setAttribute("height", height);
-          canvas.setAttribute("width", width);
-          canvas.setAttribute("height", height);
-
-          streaming = true;
-        }
-      },
-      false
-    );
-
-    clearPhoto();
+  for (let i = start; i < end; i += step) {
+    result.push(i);
   }
 
-  function clearPhoto() {
-    var context = canvas.getContext("2d");
+  return result;
+}
+
+function getSquarePixelIndices(squareIdx, squareWidth, width) {
+  const squaresPerRow = Math.floor(width / squareWidth);
+  const row = Math.floor(squareIdx / squaresPerRow);
+  const pixelsPerRow = squareWidth * width;
+  const startIdx =
+    squareWidth *
+    ((squareIdx % squaresPerRow) * squareWidth +
+      row * squaresPerRow * squareWidth ** 2);
+
+  let indices = [];
+
+  for (let i = 0; i < squareWidth; i++) {
+    const start = startIdx + i * pixelsPerRow;
+    const end = start + squareWidth ** 2;
+
+    indices = indices.concat(range(start, end, squareWidth));
+  }
+
+  return indices;
+}
+
+function App() {
+  const baseWidth = 640;
+  let squareSize = 8;
+  let isStreaming = false;
+
+  function clearFrame(canvasElem, photoElem) {
+    const context = canvasElem.getContext("2d");
     context.fillStyle = "#AAA";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, canvasElem.width, canvasElem.height);
 
-    var data = canvas.toDataURL("image/png");
-    photo.setAttribute("src", data);
+    const data = canvasElem.toDataURL("image/png");
+    photoElem.setAttribute("src", data);
   }
 
-  function takePicture() {
-    var context = canvas.getContext("2d");
+  function captureFrame(videoElem, canvasElem, photoElem) {
+    const context = canvasElem.getContext("2d");
+    const { width, height } = videoElem;
 
     if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
-      context.drawImage(video, 0, 0, width, height);
+      canvasElem.width = width;
+      canvasElem.height = height;
+      context.drawImage(videoElem, 0, 0, width, height);
 
-      var imageData = context.getImageData(0, 0, width, height);
-      var updatedData = context.createImageData(width, height);
+      const imageData = context.getImageData(0, 0, width, height);
+      const updatedData = context.createImageData(width, height);
 
       modifySquares(
-        8,
+        squareSize,
         square => {
           const numPixels = square.length;
           const summed = square.reduce(
@@ -160,101 +119,76 @@ function modifySquares(squareWidth, fn, imageData, updatedData) {
 
       context.putImageData(updatedData, 0, 0);
 
-      var data = canvas.toDataURL("image/png");
+      const data = canvasElem.toDataURL("image/png");
 
-      photo.setAttribute("src", data);
+      photoElem.setAttribute("src", data);
     } else {
-      clearPhoto();
+      clearFrame(canvasElem, photoElem);
     }
   }
 
-  setInterval(takePicture, 200);
+  function _initializeVideoStream(videoElem, canvasElem, photoElem) {
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: false })
+      .then(stream => {
+        videoElem.srcObject = stream;
+        videoElem.play();
+      })
+      .catch(err => {
+        console.error("Error occurred", err);
+      });
 
-  startup();
-})();
+    return new Promise(resolve => {
+      videoElem.addEventListener(
+        "canplay",
+        () => {
+          if (!isStreaming) {
+            const height =
+              videoElem.videoHeight / (videoElem.videoWidth / baseWidth);
 
-/*
-window.App = {
-  run: () => {
-    const app = $("#app");<
-    const vid = video();
+            videoElem.setAttribute("width", baseWidth);
+            videoElem.setAttribute("height", height);
+            canvasElem.setAttribute("width", baseWidth);
+            canvasElem.setAttribute("height", height);
 
-    app.appendChild(
-      div({}, [
-        vid,
-        button({ innerText: "Start" }).on("click", async () => {
-          const track = getVideoTrack({ video: true }, vid);
-        })
-      ])
-    );
-  }
-};
-*/
+            isStreaming = true;
 
-function range(start, end, step = 1) {
-  const result = [];
+            clearFrame(canvasElem, photoElem);
+          }
 
-  for (let i = start; i < end; i += step) {
-    result.push(i);
-  }
-
-  return result;
-}
-
-function getSquarePixelIndices(squareIdx, squareWidth, width) {
-  const pixelWidth = 4;
-  const squaresPerRow = Math.floor(width / squareWidth);
-  const row = Math.floor(squareIdx / squaresPerRow);
-  const pixelsPerRow = pixelWidth * width;
-  const startIdx =
-    pixelWidth *
-    ((squareIdx % squaresPerRow) * squareWidth +
-      row * squaresPerRow * squareWidth ** 2);
-
-  let indices = [];
-
-  for (let i = 0; i < squareWidth; i++) {
-    const start = startIdx + i * pixelsPerRow;
-    const end = start + pixelWidth * squareWidth;
-
-    indices = indices.concat(range(start, end, pixelWidth));
-  }
-
-  return indices;
-}
-
-(function testCanvas() {
-  const canvas = $("#canvas2");
-  const { width, height } = canvas;
-
-  const ctx = canvas.getContext("2d");
-
-  const imageData = ctx.getImageData(0, 0, width, height);
-  const updatedData = ctx.createImageData(imageData.width, imageData.height);
-  const squareWidth = 8;
-  let squares = [];
-
-  const numSquares = (width * height) / squareWidth ** 2;
-
-  for (let sq = 0; sq < numSquares; sq++) {
-    const [r, g, b, a] = [
-      Math.floor(sq * 5),
-      Math.floor(sq * 10),
-      Math.floor(sq * 15),
-      255
-    ];
-
-    const pixelIndices = getSquarePixelIndices(sq, squareWidth, width);
-
-    squares.push(pixelIndices);
-
-    pixelIndices.forEach(idx => {
-      updatedData.data[idx + 0] = r;
-      updatedData.data[idx + 1] = g;
-      updatedData.data[idx + 2] = b;
-      updatedData.data[idx + 3] = a;
+          resolve();
+        },
+        false
+      );
     });
   }
 
-  ctx.putImageData(updatedData, 0, 0);
-})();
+  async function start() {
+    const video = $("#video");
+    const canvas = $("#canvas");
+    const photo = $("#photo");
+
+    await _initializeVideoStream(video, canvas, photo);
+
+    const doCaptureFrame = () => {
+      captureFrame(video, canvas, photo);
+      window.requestAnimationFrame(doCaptureFrame);
+    };
+
+    window.requestAnimationFrame(doCaptureFrame);
+  }
+
+  start();
+
+  return {
+    setSquareSize(s) {
+      if ([4, 8, 16].includes(s)) {
+        squareSize = s;
+      } else {
+        console.warn("Size must be one of 4, 8 or 16");
+      }
+    }
+  };
+}
+
+window.webCam = App();
