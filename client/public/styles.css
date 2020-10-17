@@ -2,6 +2,7 @@ html {
   background: #000;
   color: #fff;
   font-family: arial;
+  padding-left: 32px;
 }
 
 #app {
@@ -18,6 +19,10 @@ ul {
 }
 li {
   margin-bottom: 16px;
+}
+
+a {
+  color: white;
 }
 
 .code {
