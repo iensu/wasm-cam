@@ -45,3 +45,6 @@ http
   .listen(PORT, () => {
     console.log(`Server running @ http://localhost:${PORT}`);
   });
+
+process.on("SIGINT", () => process.exit(0));
+process.on("SIGTERM", () => process.exit(0));
