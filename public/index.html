@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>WasmCam: Pure JavaScript version</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="bling.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <video id="video" class="hidden"></video>
+      <canvas id="canvas" class="hidden"></canvas>
+      <img id="photo" />
+    </div>
+    <p>
+      You can modify configuration from browser console with the following methods:
+      <ul>
+        <li><span class="code">webCam.setSquareSize(size: number)</span>: Changes the size of each pixel square, can be 4, 8, 16 or 32</li>
+        <li><span class="code">webCam.setTransformation(transform: string)</span>: Sets the kind of picture transformation, can be <span class="code">pixelate</span> or <span class="code">greyscale</span></li>
+      </ul>
+    </p>
+    <script src="index.js"></script>
+  </body>
+</html>

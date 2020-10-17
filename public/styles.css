@@ -1,0 +1,26 @@
+html {
+  background: #000;
+  color: #fff;
+  font-family: arial;
+}
+
+#app {
+  margin: 64px auto;
+  width: 640px;
+}
+
+.hidden {
+  display: none;
+}
+
+ul {
+  list-style: none;
+}
+li {
+  margin-bottom: 16px;
+}
+
+.code {
+  font-family: monospace;
+  font-size: 1.1rem
+}

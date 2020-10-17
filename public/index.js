@@ -168,8 +168,6 @@ function modifySquares(squareWidth, fn, imageData, updatedData) {
     }
   }
 
-  $("#takepicture").on("click", takePicture);
-
   setInterval(takePicture, 200);
 
   startup();
